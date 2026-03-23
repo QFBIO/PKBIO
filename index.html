@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biofarmacia: Suite Educativa</title>
+
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Configuración Custom de Tailwind para colores y fuente -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f4f8',
+                            100: '#dbe7f3',
+                            500: '#3a6b9c',
+                            800: '#1e3a5f',
+                            900: '#122643', // Logo Dark Blue (Principal)
+                        },
+                        accent: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6', // Logo Turquoise (Acento)
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex items-center justify-center p-4">
+
+    <!-- Card Principal de la App -->
+    <main
+        class="w-full max-w-[550px] mx-auto bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden relative min-h-[500px] flex flex-col">
+
+        <!-- Barra Superior de Navegación (Solo para el botón volver del módulo pKa) -->
+        <div class="absolute top-0 left-0 w-full p-4 sm:p-5 flex justify-start z-20 pointer-events-none">
+            <!-- Botón Volver -->
+            <button id="btn-volver" onclick="irAPantallaPrincipal(true)"
+                class="hidden pointer-events-auto text-gray-500 hover:text-accent-600 transition-all flex items-center gap-1.5 text-sm font-medium px-3 py-2 -ml-2 rounded-xl hover:bg-accent-50 active:bg-accent-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+                Volver
+            </button>
+        </div>
+
+        <!-- Header -->
+        <header class="text-center pt-10 pb-2 px-6 relative z-10">
+            <!-- Icono Constelación Molecular -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto text-slate-300 mb-3 opacity-80"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="12" y1="3" x2="12" y2="21"></line>
+                <line x1="12" y1="11" x2="18" y2="7"></line>
+                <line x1="12" y1="14" x2="6" y2="18"></line>
+                <line x1="12" y1="12" x2="5" y2="10"></line>
+                <line x1="12" y1="11" x2="19" y2="15"></line>
+                <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"></circle>
+                <circle cx="12" cy="3" r="1.5" fill="currentColor" stroke="none"></circle>
+                <circle cx="12" cy="21" r="1" fill="currentColor" stroke="none"></circle>
+                <circle cx="18" cy="7" r="2" fill="currentColor" stroke="none"></circle>
+                <circle cx="6" cy="18" r="2" fill="currentColor" stroke="none"></circle>
+                <circle cx="5" cy="10" r="1.5" fill="currentColor" stroke="none"></circle>
+                <circle cx="19" cy="15" r="1" fill="currentColor" stroke="none"></circle>
+            </svg>
+
+            <h1 class="text-xl sm:text-2xl font-bold text-brand-900 tracking-tight leading-tight">Suite
+                Educativa<br /><span class="text-base font-medium text-brand-800/80">Biofarmacia y
+                    Farmacocinética</span></h1>
+        </header>
+
+        <!-- Navegación Global (Tabs) -->
+        <div class="px-6 flex justify-center space-x-1 sm:space-x-2 pb-0 mt-3 border-b border-gray-100 z-10 relative">
+            <button onclick="switchGlobalTab('pka')" id="tab-btn-pka"
+                class="px-3 sm:px-4 py-2 font-semibold text-[13px] sm:text-sm transition-colors text-brand-900 border-b-2 border-brand-900 hover:bg-gray-50 rounded-t-lg">
+                Grado de Ionización (pKa)
+            </button>
+            <button onclick="switchGlobalTab('cinetica')" id="tab-btn-cinetica"
+                class="px-3 sm:px-4 py-2 font-medium text-[13px] sm:text-sm transition-colors text-gray-400 border-b-2 border-transparent hover:text-brand-900 hover:bg-gray-50 rounded-t-lg">
+                Cinética de Disolución
+            </button>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- PESTAÑA 1: GRADO DE IONIZACIÓN (pKa)           -->
+        <!-- ============================================== -->
+        <div id="tab-content-pka" class="flex-grow flex flex-col w-full">
+            <div id="app-container" class="px-6 pb-6 pt-4 flex-grow flex flex-col justify-start">
+
+                <!-- PANTALLA 1: SELECCIÓN -->
+                <div id="view-selection"
+                    class="transition-opacity duration-300 opacity-100 flex flex-col items-center w-full mt-4">
+                    <p
+                        class="text-slate-500 font-medium text-[14px] sm:text-[15px] leading-relaxed text-center mb-8 px-1">
+                        Esta es una herramienta para generar valores de pKa para fármacos ácidos o básicos de forma
+                        aleatoria.<br class="hidden sm:block"> Tu objetivo es seleccionar una de las opciones a
+                        continuación y calcular el grado de ionización.
+                    </p>
+                    <p class="text-gray-400 mb-5 text-center text-xs font-bold uppercase tracking-wider">
+                        Selecciona para empezar:
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 w-full">
+                        <button onclick="iniciarEjercicio('Ácido')"
+                            class="py-5 rounded-xl border border-gray-200 bg-white hover:border-accent-500 hover:shadow-md hover:bg-accent-50 hover:text-brand-900 text-gray-700 font-semibold transition-all duration-200">Ácido</button>
+                        <button onclick="iniciarEjercicio('Base')"
+                            class="py-5 rounded-xl border border-gray-200 bg-white hover:border-accent-500 hover:shadow-md hover:bg-accent-50 hover:text-brand-900 text-gray-700 font-semibold transition-all duration-200">Base</button>
+                    </div>
+                </div>
+
+                <!-- PANTALLA 2: EJERCICIO -->
+                <div id="view-exercise" class="hidden transition-opacity duration-300 opacity-0 w-full mt-2">
+                    <div class="bg-gray-50/80 rounded-xl p-5 mb-6 border border-gray-100 shadow-sm">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Tipo de
+                                Molécula</span>
+                            <span id="badge-tipo" class="text-xs font-semibold px-2.5 py-1 rounded-md"></span>
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">pKa
+                                Asignado</span>
+                            <div id="text-pka" class="text-4xl font-extrabold text-gray-800 tracking-tight mt-1"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5 ml-1">% Ionización en Estómago
+                                <span class="text-gray-400 font-normal ml-1">pH 1.2</span></label>
+                            <input type="number" step="0.01" id="input-estomago" placeholder="0.00"
+                                class="w-full px-4 py-3 bg-white rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all text-gray-800 shadow-sm placeholder-gray-300 font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5 ml-1">% Ionización en Intestino
+                                <span class="text-gray-400 font-normal ml-1">pH 5.7</span></label>
+                            <input type="number" step="0.01" id="input-intestino" placeholder="0.00"
+                                class="w-full px-4 py-3 bg-white rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all text-gray-800 shadow-sm placeholder-gray-300 font-medium">
+                        </div>
+                    </div>
+                    <button onclick="verificarEjercicio()"
+                        class="w-full mt-8 bg-gradient-to-r from-brand-900 to-accent-600 hover:from-brand-800 hover:to-accent-500 text-white font-medium py-4 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98]">
+                        Verificar Respuestas
+                    </button>
+                </div>
+
+                <!-- PANTALLA 3: RESULTADOS -->
+                <div id="view-results" class="hidden transition-opacity duration-300 opacity-0 w-full mt-4">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-5 text-center">Resultados del Análisis</h2>
+                    <div class="space-y-3">
+                        <div id="card-estomago" class="p-4 rounded-xl border">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-sm font-bold text-gray-800">Estómago (pH 1.2)</h3>
+                                    <p id="feedback-estomago" class="text-[13px] mt-1 text-gray-600 font-medium"></p>
+                                </div>
+                                <div id="icon-estomago"
+                                    class="h-8 w-8 rounded-full flex items-center justify-center font-bold shadow-sm">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="card-intestino" class="p-4 rounded-xl border">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-sm font-bold text-gray-800">Intestino (pH 5.7)</h3>
+                                    <p id="feedback-intestino" class="text-[13px] mt-1 text-gray-600 font-medium"></p>
+                                </div>
+                                <div id="icon-intestino"
+                                    class="h-8 w-8 rounded-full flex items-center justify-center font-bold shadow-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="reiniciarApp()"
+                        class="w-full mt-8 bg-gray-100 hover:bg-accent-50 text-brand-900 font-semibold py-4 rounded-xl transition-all active:scale-[0.98]">
+                        Nuevo Ejercicio
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ============================================== -->
+        <!-- PESTAÑA 2: CINÉTICA DE DISOLUCIÓN              -->
+        <!-- ============================================== -->
+        <div id="tab-content-cinetica"
+            class="hidden flex-grow flex flex-col w-full px-6 pb-6 pt-6 space-y-5 overflow-y-auto">
+
+            <!-- Zona de Configuración Cinética -->
+            <div id="cinetica-config" class="w-full">
+                <p class="text-slate-500 font-medium text-[13px] sm:text-[14px] leading-relaxed text-center mb-6">
+                    Generador de perfiles de disolución experimentales y análisis cinético (mínimos cuadrados).
+                </p>
+                <p class="text-gray-400 mb-4 text-center text-xs font-bold uppercase tracking-wider">
+                    Configuración del Modelo:
+                </p>
+                <div class="grid grid-cols-2 gap-4 w-full">
+                    <button onclick="generarCinetica('Orden 0')"
+                        class="py-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-md hover:bg-brand-50 hover:text-brand-900 text-gray-700 font-semibold transition-all text-sm">
+                        Orden 0
+                    </button>
+                    <button onclick="generarCinetica('Orden 1')"
+                        class="py-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-md hover:bg-brand-50 hover:text-brand-900 text-gray-700 font-semibold transition-all text-sm">
+                        Orden 1
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interfaz Principal del Ejercicio de Cinética -->
+            <div id="cinetica-ejercicio" class="hidden w-full flex flex-col space-y-5 animate-fade-in">
+
+                <!-- Encabezado de Sesión -->
+                <div
+                    class="flex justify-between items-center bg-gray-50/80 p-3 rounded-lg border border-gray-200 shadow-sm">
+                    <div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Modelo</span>
+                        <span id="txt-cinetica-orden" class="text-sm font-bold text-brand-900"></span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Dosis</span>
+                        <span id="txt-cinetica-dosis" class="text-sm font-bold text-accent-600"></span>
+                    </div>
+                </div>
+
+                <!-- Tabla de Datos -->
+                <div class="w-full border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <table class="w-full text-center text-xs">
+                        <thead
+                            class="bg-gray-100/50 text-gray-500 uppercase tracking-wider font-semibold border-b border-gray-200">
+                            <tr>
+                                <th class="p-2 w-1/4">t (min)</th>
+                                <th class="p-2 w-1/4">% Disuelto</th>
+                                <!-- Estas columnas se muestran via JS si es orden 1 -->
+                                <th id="col-h-por-disolver" class="p-2 hidden border-l">% X Disolver</th>
+                                <th id="col-h-ln-por-disolver" class="p-2 hidden border-l">Ln(% X Disolver)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cinetica-tbody" class="text-gray-700 font-mono">
+                            <!-- Inyectado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Gráfico de Regresión -->
+                <div class="w-full bg-white p-2 rounded-xl border border-gray-200 shadow-sm relative h-[220px]">
+                    <canvas id="cinetica-canvas"></canvas>
+                </div>
+
+                <!-- Panel Matemático -->
+                <div class="bg-brand-900 text-white rounded-xl p-4 shadow-sm grid grid-cols-2 gap-3 text-xs">
+                    <div
+                        class="col-span-2 text-center pb-2 border-b border-white/20 font-mono text-[13px] tracking-wide">
+                        Ecuación: <span id="txt-cinetica-eq" class="font-bold text-accent-100"></span>
+                    </div>
+                    <div class="flex flex-col items-center pt-1">
+                        <span class="text-[9px] text-white/60 uppercase tracking-widest font-bold">Pendiente (m)</span>
+                        <span id="txt-cinetica-m" class="font-bold text-sm"></span>
+                    </div>
+                    <div class="flex flex-col items-center pt-1">
+                        <span class="text-[9px] text-white/60 uppercase tracking-widest font-bold">Correlación R²</span>
+                        <span id="txt-cinetica-r2" class="font-bold text-sm text-green-300"></span>
+                    </div>
+                </div>
+
+                <!-- Zona de Evaluación Formativa -->
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-inner">
+                    <h3 class="text-sm font-bold text-gray-800 text-center mb-4 flex items-center justify-center gap-2">
+                        <span>Evaluación de Interpolación</span>
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label id="lbl-cinetica-qa"
+                                class="block text-[13px] font-medium text-gray-700 mb-1"></label>
+                            <div class="flex items-center gap-2">
+                                <input type="number" step="0.01" id="input-cinetica-qa" placeholder="0.00"
+                                    class="w-full px-3 py-2 bg-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all text-sm font-mono shadow-sm">
+                                <span class="text-gray-400 font-medium text-sm">%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label id="lbl-cinetica-qb"
+                                class="block text-[13px] font-medium text-gray-700 mb-1"></label>
+                            <div class="flex items-center gap-2">
+                                <input type="number" step="0.01" id="input-cinetica-qb" placeholder="0.00"
+                                    class="w-full px-3 py-2 bg-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all text-sm font-mono shadow-sm">
+                                <span class="text-gray-400 font-medium text-sm">min</span>
+                            </div>
+                        </div>
+                        <button onclick="verificarEvaluacionCinetica()"
+                            class="w-full bg-brand-600 hover:bg-brand-500 text-white font-medium py-2.5 rounded-lg transition-all shadow-sm active:scale-[0.98] text-sm mt-2">
+                            Verificar mi cálculo
+                        </button>
+
+                        <div id="feedback-cinetica"
+                            class="hidden rounded-lg p-3 text-sm font-medium mt-2 animate-fade-in border">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón Reiniciar -->
+                <button onclick="resetearCinetica()"
+                    class="w-full text-brand-900 border border-brand-200 bg-brand-50 hover:bg-brand-100 font-medium py-3 rounded-lg text-sm transition-all shadow-sm mt-4">
+                    Generar Nuevo Simulación Científica
+                </button>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ESTILOS ADICIONALES -->
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+
+    <!-- LOGICA DE LA APLICACIÓN -->
+    <script>
+        /*************************************************
+         *  MANEJO DE PESTAÑAS (TABS)
+         *************************************************/
+        function switchGlobalTab(tabName) {
+            const btnPka = document.getElementById('tab-btn-pka');
+            const btnCin = document.getElementById('tab-btn-cinetica');
+            const contentPka = document.getElementById('tab-content-pka');
+            const contentCin = document.getElementById('tab-content-cinetica');
+            // Boton de la app original (PKA)
+            const btnVolver = document.getElementById('btn-volver');
+
+            if (tabName === 'pka') {
+                btnPka.className = "px-3 sm:px-4 py-2 font-semibold text-[13px] sm:text-sm transition-colors text-brand-900 border-b-2 border-brand-900 hover:bg-gray-50 rounded-t-lg";
+                btnCin.className = "px-3 sm:px-4 py-2 font-medium text-[13px] sm:text-sm transition-colors text-gray-400 border-b-2 border-transparent hover:text-brand-900 hover:bg-gray-50 rounded-t-lg";
+                contentPka.classList.remove('hidden');
+                contentCin.classList.add('hidden');
+
+                // Mostrar boton de volver si corresponde al estado actual de PKA
+                if (vistaActual && vistaActual !== 'view-selection') {
+                    btnVolver.classList.remove('hidden');
+                }
+            } else {
+                btnCin.className = "px-3 sm:px-4 py-2 font-semibold text-[13px] sm:text-sm transition-colors text-brand-900 border-b-2 border-brand-900 hover:bg-gray-50 rounded-t-lg";
+                btnPka.className = "px-3 sm:px-4 py-2 font-medium text-[13px] sm:text-sm transition-colors text-gray-400 border-b-2 border-transparent hover:text-brand-900 hover:bg-gray-50 rounded-t-lg";
+                contentCin.classList.remove('hidden');
+                contentPka.classList.add('hidden');
+
+                // Ocultar boton volver de PKA
+                btnVolver.classList.add('hidden');
+            }
+        }
+
+
+        /*************************************************
+         *  MÓDULO: IONIZACIÓN PKA
+         *************************************************/
+        class CalculadorIonizacion {
+            generarEjercicio(tipoMolecula) {
+                let pKa = tipoMolecula === 'Ácido'
+                    ? (Math.random() * (5.0 - 1.2) + 1.2).toFixed(1)
+                    : (Math.random() * (8.0 - 6.0) + 6.0).toFixed(1);
+
+                return {
+                    tipo: tipoMolecula,
+                    pKa: parseFloat(pKa),
+                    pH_Estomago: 1.2,
+                    pH_Intestino: 5.7
+                };
+            }
+
+            calcularPorcentajeIonizacion(pKa, pH, tipoMolecula) {
+                let proporcion = tipoMolecula === 'Ácido'
+                    ? Math.pow(10, pH - pKa)
+                    : Math.pow(10, pKa - pH);
+                return (proporcion / (1 + proporcion)) * 100;
+            }
+
+            verificarRespuesta(ejercicio, pH, respuestaAlumno) {
+                const correcta = this.calcularPorcentajeIonizacion(ejercicio.pKa, pH, ejercicio.tipo);
+                return {
+                    esCorrecto: Math.abs(correcta - respuestaAlumno) <= 0.1,
+                    respuestaCorrecta: correcta
+                };
+            }
+        }
+
+        const calculador = new CalculadorIonizacion();
+        let ejercicioActual = null;
+        let vistaActual = 'view-selection';
+        const btnVolver = document.getElementById('btn-volver');
+
+        function switchView(idOcultar, idMostrar) {
+            const vistaOcultar = document.getElementById(idOcultar);
+            const vistaMostrar = document.getElementById(idMostrar);
+
+            if (idMostrar === 'view-selection') {
+                btnVolver.classList.add('hidden');
+            } else {
+                // Solo si la pestaña es PKA
+                if (!document.getElementById('tab-content-pka').classList.contains('hidden')) {
+                    btnVolver.classList.remove('hidden');
+                }
+            }
+            vistaActual = idMostrar;
+
+            vistaOcultar.classList.remove('opacity-100');
+            vistaOcultar.classList.add('opacity-0');
+
+            setTimeout(() => {
+                vistaOcultar.classList.add('hidden');
+                vistaMostrar.classList.remove('hidden');
+                void vistaMostrar.offsetWidth;
+                vistaMostrar.classList.remove('opacity-0');
+                vistaMostrar.classList.add('opacity-100');
+            }, 300);
+        }
+
+        function iniciarEjercicio(tipo) {
+            ejercicioActual = calculador.generarEjercicio(tipo);
+            const textPka = document.getElementById('text-pka');
+            const badgeTipo = document.getElementById('badge-tipo');
+            textPka.textContent = ejercicioActual.pKa;
+            badgeTipo.textContent = ejercicioActual.tipo;
+
+            if (ejercicioActual.tipo === 'Ácido') {
+                badgeTipo.className = "text-xs font-semibold px-2.5 py-1 rounded-md text-rose-800 bg-rose-100";
+            } else {
+                badgeTipo.className = "text-xs font-semibold px-2.5 py-1 rounded-md text-emerald-800 bg-emerald-100";
+            }
+            document.getElementById('input-estomago').value = '';
+            document.getElementById('input-intestino').value = '';
+            switchView('view-selection', 'view-exercise');
+        }
+
+        function verificarEjercicio() {
+            const valEst = parseFloat(document.getElementById('input-estomago').value);
+            const valInt = parseFloat(document.getElementById('input-intestino').value);
+            if (isNaN(valEst) || isNaN(valInt)) { alert("Por favor, ingresa ambos porcentajes."); return; }
+
+            const resEstomago = calculador.verificarRespuesta(ejercicioActual, ejercicioActual.pH_Estomago, valEst);
+            const resIntestino = calculador.verificarRespuesta(ejercicioActual, ejercicioActual.pH_Intestino, valInt);
+
+            renderizarResultado('estomago', valEst, resEstomago);
+            renderizarResultado('intestino', valInt, resIntestino);
+            switchView('view-exercise', 'view-results');
+        }
+
+        function renderizarResultado(organo, respAlumno, validacion) {
+            const card = document.getElementById(`card-${organo}`);
+            const feedback = document.getElementById(`feedback-${organo}`);
+            const icon = document.getElementById(`icon-${organo}`);
+            feedback.innerHTML = `Tu respuesta: <b>${respAlumno}%</b> <br/> Exacto: <b>${validacion.respuestaCorrecta.toFixed(2)}%</b>`;
+
+            if (validacion.esCorrecto) {
+                card.className = "p-4 rounded-xl border border-green-200 bg-green-50 shadow-sm";
+                icon.textContent = "✓";
+                icon.className = "h-7 w-7 rounded-full flex items-center justify-center font-bold text-sm bg-green-200 text-green-700";
+            } else {
+                card.className = "p-4 rounded-xl border border-red-200 bg-red-50 shadow-sm";
+                icon.textContent = "✕";
+                icon.className = "h-7 w-7 rounded-full flex items-center justify-center font-bold text-sm bg-red-200 text-red-700";
+            }
+        }
+
+        function irAPantallaPrincipal() {
+            ejercicioActual = null;
+            document.getElementById('input-estomago').value = '';
+            document.getElementById('input-intestino').value = '';
+            if (vistaActual !== 'view-selection') {
+                switchView(vistaActual, 'view-selection');
+            }
+        }
+        function reiniciarApp() { irAPantallaPrincipal(); }
+
+
+        /*************************************************
+         *  MÓDULO 2: CINÉTICA DE DISOLUCIÓN
+         *************************************************/
+        const tiemposDisolucion = [5, 10, 20, 25, 30, 45, 60];
+        const dosisDisponibles = [0.5, 1, 5, 10, 50, 100, 250, 500, 1000];
+        let stateCinetica = null; // Guardará variables de la sesión de cinética
+        let chartInstance = null;
+
+        class MotorCinetica {
+            generarSimulacion(orden) {
+                const dosis = dosisDisponibles[Math.floor(Math.random() * dosisDisponibles.length)];
+                let k_ideal;
+                let datos = [];
+
+                if (orden === 'Orden 0') {
+                    // En t=60, disuelto debe ser ~70-95%
+                    // % = k*t => k entre 1.1 y 1.55
+                    k_ideal = Math.random() * (1.55 - 1.1) + 1.1;
+                } else {
+                    // Orden 1: % disuelto = 100(1 - e^-kt)
+                    // t1/2 entre 15 y 30 mins => k entre 0.046 y 0.023
+                    k_ideal = Math.random() * (0.046 - 0.023) + 0.023;
+                }
+
+                let yAnterior = 0;
+
+                for (let t of tiemposDisolucion) {
+                    let disolucion_teorica;
+
+                    if (orden === 'Orden 0') {
+                        disolucion_teorica = k_ideal * t;
+                    } else {
+                        disolucion_teorica = 100 * (1 - Math.exp(-k_ideal * t));
+                    }
+
+                    // Ruido experimental para que R^2 no sea exactamente 1
+                    // Ruido entre -3.5 y +3.5
+                    let ruido = (Math.random() * 7) - 3.5;
+                    let difFinal = disolucion_teorica + ruido;
+
+                    // Ajustes lógicos (creciente y tope 100)
+                    if (difFinal <= yAnterior) {
+                        difFinal = yAnterior + (Math.random() * 1.5 + 0.5); // Minimo crece 0.5 a 2
+                    }
+                    if (difFinal >= 100) difFinal = 99.8 + (Math.random() * 0.1);
+
+                    difFinal = parseFloat(difFinal.toFixed(1));
+                    yAnterior = difFinal;
+
+                    const pctXDisolver = parseFloat((100 - difFinal).toFixed(1));
+                    const lnXDisolver = parseFloat((Math.log(pctXDisolver)).toFixed(4));
+
+                    datos.push({
+                        t: t,
+                        yDisuelto: difFinal,
+                        yXDisolver: pctXDisolver,
+                        yLn: lnXDisolver
+                    });
+                }
+
+                // Regresión lineal (Mínimos Cuadrados)
+                let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0, n = datos.length;
+
+                datos.forEach(d => {
+                    let X = d.t;
+                    let Y = orden === 'Orden 0' ? d.yDisuelto : d.yLn;
+                    sumX += X;
+                    sumY += Y;
+                    sumXY += X * Y;
+                    sumX2 += X * X;
+                    sumY2 += Y * Y;
+                });
+
+                let m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+                let b = (sumY - m * sumX) / n;
+
+                let r2_num = Math.pow((n * sumXY - sumX * sumY), 2);
+                let r2_den = (n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY);
+                let r2 = r2_num / r2_den;
+
+                return { orden, dosis, datos, reg: { m, b, r2 } };
+            }
+
+            generarPreguntas(simulacion) {
+                // A: % al tiempo X
+                // Tiempo aleatorio entre 6 y 55 que no esté tabla
+                let t_A = 0;
+                while (t_A === 0 || tiemposDisolucion.includes(t_A)) {
+                    t_A = Math.floor(Math.random() * (55 - 6 + 1) + 6);
+                }
+
+                let yA_eq = simulacion.reg.m * t_A + simulacion.reg.b;
+                let ansA = simulacion.orden === 'Orden 0'
+                    ? yA_eq
+                    : 100 - Math.exp(yA_eq);
+
+                if (ansA > 100) ansA = 100;
+
+                // B: Tiempo al porcentaje Y
+                // Porcentaje objetivo aleatorio entre 15% y 85%
+                let pct_B = Math.floor(Math.random() * (85 - 15 + 1) + 15);
+                let ansB;
+                if (simulacion.orden === 'Orden 0') {
+                    ansB = (pct_B - simulacion.reg.b) / simulacion.reg.m;
+                } else {
+                    let ln_obj = Math.log(100 - pct_B);
+                    ansB = (ln_obj - simulacion.reg.b) / simulacion.reg.m;
+                }
+
+                return {
+                    QA: { t: t_A, exacto: ansA },
+                    QB: { pct: pct_B, exacto: ansB }
+                };
+            }
+        }
+
+        const motorCinetica = new MotorCinetica();
+
+        function generarCinetica(orden) {
+            document.getElementById('cinetica-config').classList.add('hidden');
+            document.getElementById('cinetica-ejercicio').classList.remove('hidden');
+
+            const simulacion = motorCinetica.generarSimulacion(orden);
+            const preguntas = motorCinetica.generarPreguntas(simulacion);
+            stateCinetica = { simulacion, preguntas };
+
+            // Renderizar Textos Principales
+            document.getElementById('txt-cinetica-orden').textContent = orden;
+            document.getElementById('txt-cinetica-dosis').textContent = simulacion.dosis + ' mg';
+
+            // Renderizar Ecuación y stats
+            const signoB = simulacion.reg.b >= 0 ? '+' : '';
+            const valB = simulacion.reg.b.toFixed(3);
+            const valM = simulacion.reg.m.toFixed(4);
+
+            document.getElementById('txt-cinetica-eq').textContent = `y = ${valM}x ${signoB} ${valB}`;
+            document.getElementById('txt-cinetica-m').textContent = valM;
+            document.getElementById('txt-cinetica-r2').textContent = simulacion.reg.r2.toFixed(4);
+
+            // Renderizar Tabla
+            const tbody = document.getElementById('cinetica-tbody');
+            tbody.innerHTML = '';
+
+            // Mostrar u ocultar cabeceras extra para orden 1
+            const colHX = document.getElementById('col-h-por-disolver');
+            const colHLn = document.getElementById('col-h-ln-por-disolver');
+
+            if (orden === 'Orden 1') {
+                colHX.classList.remove('hidden');
+                colHLn.classList.remove('hidden');
+            } else {
+                colHX.classList.add('hidden');
+                colHLn.classList.add('hidden');
+            }
+
+            simulacion.datos.forEach(d => {
+                let tr = document.createElement('tr');
+                tr.className = "border-b border-gray-100 hover:bg-gray-50/50 transition-colors";
+
+                let tdT = `<td class="p-2 w-1/4 font-semibold text-gray-800">${d.t}</td>`;
+                let tdY = `<td class="p-2 w-1/4">${d.yDisuelto}%</td>`;
+
+                let tdXDis = orden === 'Orden 1' ? `<td class="p-2 border-l border-gray-100 text-gray-500">${d.yXDisolver}</td>` : '';
+                let tdLn = orden === 'Orden 1' ? `<td class="p-2 border-l border-gray-100 font-bold text-accent-600">${d.yLn}</td>` : '';
+
+                tr.innerHTML = tdT + tdY + tdXDis + tdLn;
+                tbody.appendChild(tr);
+            });
+
+            // Setear Textos Preguntas
+            document.getElementById('lbl-cinetica-qa').textContent = `¿Cuál es el % disuelto teórico al tiempo t = ${preguntas.QA.t} min?`;
+            document.getElementById('lbl-cinetica-qb').textContent = `¿A qué tiempo teórico se alcanza un % disuelto del ${preguntas.QB.pct}%?`;
+
+            // Limpiar inputs antiguos
+            document.getElementById('input-cinetica-qa').value = '';
+            document.getElementById('input-cinetica-qb').value = '';
+            const feedback = document.getElementById('feedback-cinetica');
+            feedback.classList.add('hidden');
+
+            // Renderizar Gráfico
+            renderGraph(simulacion);
+        }
+
+        function renderGraph(simulacion) {
+            const ctx = document.getElementById('cinetica-canvas').getContext('2d');
+
+            if (chartInstance) {
+                chartInstance.destroy(); // Destruimos instincia vieja
+            }
+
+            // Puntos experimentales Scatter
+            const scatterData = simulacion.datos.map(d => ({
+                x: d.t,
+                y: simulacion.orden === 'Orden 0' ? d.yDisuelto : d.yLn
+            }));
+
+            // Linea de tendencia teórica (evaluando equation en t=0 y t=65)
+            const xLine = [0, 65];
+            const lineData = xLine.map(x => ({
+                x: x,
+                y: (simulacion.reg.m * x) + simulacion.reg.b
+            }));
+
+            let yLabel = simulacion.orden === 'Orden 0' ? '% Disuelto' : 'Ln(% por disolver)';
+
+            chartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Datos Experimentales',
+                            data: scatterData,
+                            backgroundColor: '#0d9488', // Teal accent
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            order: 1
+                        },
+                        {
+                            type: 'line',
+                            label: 'Línea de Regresión',
+                            data: lineData,
+                            borderColor: '#1e3a5f', // Dark Brand
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false,
+                            order: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear', position: 'bottom',
+                            title: { display: true, text: 'Tiempo (min)' },
+                            min: 0, max: 70
+                        },
+                        y: {
+                            title: { display: true, text: yLabel }
+                        }
+                    }
+                }
+            });
+        }
+
+        function verificarEvaluacionCinetica() {
+            const ansQA = parseFloat(document.getElementById('input-cinetica-qa').value);
+            const ansQB = parseFloat(document.getElementById('input-cinetica-qb').value);
+
+            if (isNaN(ansQA) || isNaN(ansQB)) {
+                alert('Por favor, ingresa tus cálculos numéricos en ambas preguntas.');
+                return;
+            }
+
+            const exactA = stateCinetica.preguntas.QA.exacto;
+            const exactB = stateCinetica.preguntas.QB.exacto;
+
+            // Tolerancia absoluta de 1 unidad (% o min) para margen de error +-1
+            const okA = Math.abs(exactA - ansQA) <= 1.0;
+            const okB = Math.abs(exactB - ansQB) <= 1.0;
+
+            const feedback = document.getElementById('feedback-cinetica');
+            feedback.classList.remove('hidden');
+
+            let txtHtml = `<div class="flex justify-between border-b pb-2 mb-2">`;
+            txtHtml += `<div><b>Pregunta A:</b><br/><span class="${okA ? 'text-green-600' : 'text-red-500'} font-bold">Tú: ${ansQA}</span> <br/><span class="text-xs text-gray-500">Exacto: ${exactA.toFixed(2)}</span></div>`;
+            txtHtml += `<div><b>Pregunta B:</b><br/><span class="${okB ? 'text-green-600' : 'text-red-500'} font-bold">Tú: ${ansQB}</span> <br/><span class="text-xs text-gray-500">Exacto: ${exactB.toFixed(2)}</span></div>`;
+            txtHtml += `</div>`;
+
+            if (okA && okB) {
+                feedback.className = "rounded-lg p-3 text-sm font-medium mt-3 animate-fade-in border border-green-200 bg-green-50 text-green-800";
+                txtHtml += `<div class="text-center">¡Fenomenal! Ambas respuestas están dentro del margen de error (±1%). ¡Aprobado! ✅</div>`;
+            } else {
+                feedback.className = "rounded-lg p-3 text-sm font-medium mt-3 animate-fade-in border border-amber-200 bg-amber-50 text-amber-800";
+                txtHtml += `<div class="text-center">¡Cuidado! Hay fallos en los cálculos de la interpolación lineal. Revisa la ecuación. ⚠️</div>`;
+            }
+            feedback.innerHTML = txtHtml;
+        }
+
+        function resetearCinetica() {
+            document.getElementById('cinetica-ejercicio').classList.add('hidden');
+            document.getElementById('cinetica-config').classList.remove('hidden');
+            if (chartInstance) {
+                chartInstance.destroy();
+                chartInstance = null;
+            }
+        }
+    </script>
+</body>
+
+</html>
