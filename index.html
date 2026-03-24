@@ -262,7 +262,7 @@
                 </div>
 
                 <!-- Gráfico de Regresión -->
-                <div class="w-full bg-white p-2 rounded-xl border border-gray-200 shadow-sm relative h-[220px]">
+                <div class="w-full bg-white p-3 rounded-xl border border-gray-200 shadow-sm relative h-[320px]">
                     <canvas id="cinetica-canvas"></canvas>
                 </div>
 
@@ -565,16 +565,18 @@
                         disolucion_teorica = 100 * (1 - Math.exp(-k_ideal * t));
                     }
 
-                    // Ruido experimental para que R^2 no sea exactamente 1
-                    // Ruido entre -3.5 y +3.5
-                    let ruido = (Math.random() * 7) - 3.5;
+                    // Ruido experimental para variar R^2 entre ~0.7 y 0.999 (tendencia a altos)
+                    // Con Math.pow(x, 3) el valor es <0.125 la mitad de las veces, pero puede ser hasta 1 (25% desviación)
+                    let magnRuido = Math.pow(Math.random(), 3) * 25; 
+                    let ruido = magnRuido * (Math.random() < 0.5 ? 1 : -1);
                     let difFinal = disolucion_teorica + ruido;
 
-                    // Ajustes lógicos (creciente y tope 100)
+                    // Ajustes lógicos (siempre es creciente y tope físico en ~100)
                     if (difFinal <= yAnterior) {
-                        difFinal = yAnterior + (Math.random() * 1.5 + 0.5); // Minimo crece 0.5 a 2
+                        // Obligamos a que el % acumulado crezca para tener sentido físico, pero con error aleatorio
+                        difFinal = yAnterior + (Math.random() * 2.5 + 0.1); 
                     }
-                    if (difFinal >= 100) difFinal = 99.8 + (Math.random() * 0.1);
+                    if (difFinal >= 100) difFinal = 99.5 + (Math.random() * 0.4);
 
                     difFinal = parseFloat(difFinal.toFixed(1));
                     yAnterior = difFinal;
