@@ -207,7 +207,8 @@
             <!-- Zona de Configuración Cinética -->
             <div id="cinetica-config" class="w-full">
                 <p class="text-slate-500 font-medium text-[13px] sm:text-[14px] leading-relaxed text-center mb-6">
-                    Esta es una herramienta para generar valores de porcentaje de fármaco disuelto para formulaciones de forma aleatoria.<br class="hidden sm:block">
+                    Esta es una herramienta para generar valores de porcentaje de fármaco disuelto para formulaciones de
+                    forma aleatoria.<br class="hidden sm:block">
                     Tu objetivo es seleccionar una de las cinéticas a continuación e interpolar variables.
                 </p>
                 <p class="text-gray-400 mb-4 text-center text-xs font-bold uppercase tracking-wider">
@@ -519,7 +520,7 @@
                 resetearCinetica();
             }
         }
-        function reiniciarApp() { 
+        function reiniciarApp() {
             ejercicioActual = null;
             document.getElementById('input-estomago').value = '';
             document.getElementById('input-intestino').value = '';
@@ -651,7 +652,7 @@
             document.getElementById('cinetica-config').classList.add('hidden');
             document.getElementById('cinetica-ejercicio').classList.remove('hidden');
             document.getElementById('btn-volver').classList.remove('hidden');
-            
+
             // Ocultar/Mostrar botones correspondientes
             document.getElementById('btn-verificar-cinetica').classList.remove('hidden');
             document.getElementById('btn-nuevo-cinetica').classList.add('hidden');
@@ -803,18 +804,36 @@
             const feedback = document.getElementById('feedback-cinetica');
             feedback.classList.remove('hidden');
 
-            let txtHtml = `<div class="flex justify-between border-b pb-2 mb-2">`;
-            txtHtml += `<div><b>Pregunta A:</b><br/><span class="${okA ? 'text-green-600' : 'text-red-500'} font-bold">Tú: ${ansQA}</span> <br/><span class="text-xs text-gray-500">Exacto: ${exactA.toFixed(2)}</span></div>`;
-            txtHtml += `<div><b>Pregunta B:</b><br/><span class="${okB ? 'text-green-600' : 'text-red-500'} font-bold">Tú: ${ansQB}</span> <br/><span class="text-xs text-gray-500">Exacto: ${exactB.toFixed(2)}</span></div>`;
-            txtHtml += `</div>`;
+            feedback.className = "mt-3 animate-fade-in w-full space-y-3";
+            
+            const iconA_char = okA ? "✓" : "✕";
+            const iconA_class = okA ? "bg-green-200 text-green-700" : "bg-red-200 text-red-700";
+            const cardA_class = okA ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50";
 
-            if (okA && okB) {
-                feedback.className = "rounded-lg p-3 text-sm font-medium mt-3 animate-fade-in border border-green-200 bg-green-50 text-green-800";
-                txtHtml += `<div class="text-center">¡Fenomenal! Ambas respuestas están dentro del margen de error (±1%). ¡Aprobado! ✅</div>`;
-            } else {
-                feedback.className = "rounded-lg p-3 text-sm font-medium mt-3 animate-fade-in border border-amber-200 bg-amber-50 text-amber-800";
-                txtHtml += `<div class="text-center">¡Cuidado! Hay fallos en los cálculos de la interpolación lineal. Revisa la ecuación. ⚠️</div>`;
-            }
+            const iconB_char = okB ? "✓" : "✕";
+            const iconB_class = okB ? "bg-green-200 text-green-700" : "bg-red-200 text-red-700";
+            const cardB_class = okB ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50";
+
+            let txtHtml = `
+            <div class="p-4 rounded-xl border ${cardA_class} shadow-sm">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-800">Pregunta A</h3>
+                        <p class="text-[13px] mt-1 text-gray-600 font-medium">Tu respuesta: <b>${ansQA}</b> <br/> Exacto: <b>${exactA.toFixed(2)}</b></p>
+                    </div>
+                    <div class="h-7 w-7 rounded-full flex items-center justify-center font-bold text-sm ${iconA_class} shadow-sm">${iconA_char}</div>
+                </div>
+            </div>
+            <div class="p-4 rounded-xl border ${cardB_class} shadow-sm">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-800">Pregunta B</h3>
+                        <p class="text-[13px] mt-1 text-gray-600 font-medium">Tu respuesta: <b>${ansQB}</b> <br/> Exacto: <b>${exactB.toFixed(2)}</b></p>
+                    </div>
+                    <div class="h-7 w-7 rounded-full flex items-center justify-center font-bold text-sm ${iconB_class} shadow-sm">${iconB_char}</div>
+                </div>
+            </div>`;
+            
             feedback.innerHTML = txtHtml;
 
             // Ocultar botón verificar y mostrar "Nuevo Ejercicio"
