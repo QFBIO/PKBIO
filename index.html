@@ -207,7 +207,8 @@
             <!-- Zona de Configuración Cinética -->
             <div id="cinetica-config" class="w-full">
                 <p class="text-slate-500 font-medium text-[13px] sm:text-[14px] leading-relaxed text-center mb-6">
-                    Generador de perfiles de disolución experimentales y análisis cinético (mínimos cuadrados).
+                    Esta es una herramienta para generar valores de porcentaje de fármaco disuelto para formulaciones de forma aleatoria.<br class="hidden sm:block">
+                    Tu objetivo es seleccionar una de las cinéticas a continuación e interpolar variables.
                 </p>
                 <p class="text-gray-400 mb-4 text-center text-xs font-bold uppercase tracking-wider">
                     Configuración del Modelo:
@@ -305,9 +306,9 @@
                                 <span class="text-gray-400 font-medium text-sm">min</span>
                             </div>
                         </div>
-                        <button onclick="verificarEvaluacionCinetica()"
-                            class="w-full bg-brand-600 hover:bg-brand-500 text-white font-medium py-2.5 rounded-lg transition-all shadow-sm active:scale-[0.98] text-sm mt-2">
-                            Verificar mi cálculo
+                        <button id="btn-verificar-cinetica" onclick="verificarEvaluacionCinetica()"
+                            class="w-full mt-4 bg-gradient-to-r from-brand-900 to-accent-600 hover:from-brand-800 hover:to-accent-500 text-white font-medium py-4 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98]">
+                            Verificar Respuestas
                         </button>
 
                         <div id="feedback-cinetica"
@@ -317,9 +318,9 @@
                 </div>
 
                 <!-- Botón Reiniciar -->
-                <button onclick="resetearCinetica()"
-                    class="w-full text-brand-900 border border-brand-200 bg-brand-50 hover:bg-brand-100 font-medium py-3 rounded-lg text-sm transition-all shadow-sm mt-4">
-                    Generar Nuevo Simulación Científica
+                <button id="btn-nuevo-cinetica" onclick="resetearCinetica()"
+                    class="hidden w-full mt-8 bg-gray-100 hover:bg-accent-50 text-brand-900 font-semibold py-4 rounded-xl transition-all active:scale-[0.98]">
+                    Nuevo Ejercicio
                 </button>
 
             </div>
@@ -375,9 +376,10 @@
                 contentPka.classList.remove('hidden');
                 contentCin.classList.add('hidden');
 
-                // Mostrar boton de volver si corresponde al estado actual de PKA
                 if (vistaActual && vistaActual !== 'view-selection') {
                     btnVolver.classList.remove('hidden');
+                } else {
+                    btnVolver.classList.add('hidden');
                 }
             } else {
                 btnCin.className = "px-3 sm:px-4 py-2 font-semibold text-[13px] sm:text-sm transition-colors text-brand-900 border-b-2 border-brand-900 hover:bg-gray-50 rounded-t-lg";
@@ -385,8 +387,11 @@
                 contentCin.classList.remove('hidden');
                 contentPka.classList.add('hidden');
 
-                // Ocultar boton volver de PKA
-                btnVolver.classList.add('hidden');
+                if (!document.getElementById('cinetica-config').classList.contains('hidden')) {
+                    btnVolver.classList.add('hidden');
+                } else {
+                    btnVolver.classList.remove('hidden');
+                }
             }
         }
 
@@ -503,6 +508,18 @@
         }
 
         function irAPantallaPrincipal() {
+            if (!document.getElementById('tab-content-pka').classList.contains('hidden')) {
+                ejercicioActual = null;
+                document.getElementById('input-estomago').value = '';
+                document.getElementById('input-intestino').value = '';
+                if (vistaActual !== 'view-selection') {
+                    switchView(vistaActual, 'view-selection');
+                }
+            } else {
+                resetearCinetica();
+            }
+        }
+        function reiniciarApp() { 
             ejercicioActual = null;
             document.getElementById('input-estomago').value = '';
             document.getElementById('input-intestino').value = '';
@@ -510,7 +527,6 @@
                 switchView(vistaActual, 'view-selection');
             }
         }
-        function reiniciarApp() { irAPantallaPrincipal(); }
 
 
         /*************************************************
@@ -634,6 +650,11 @@
         function generarCinetica(orden) {
             document.getElementById('cinetica-config').classList.add('hidden');
             document.getElementById('cinetica-ejercicio').classList.remove('hidden');
+            document.getElementById('btn-volver').classList.remove('hidden');
+            
+            // Ocultar/Mostrar botones correspondientes
+            document.getElementById('btn-verificar-cinetica').classList.remove('hidden');
+            document.getElementById('btn-nuevo-cinetica').classList.add('hidden');
 
             const simulacion = motorCinetica.generarSimulacion(orden);
             const preguntas = motorCinetica.generarPreguntas(simulacion);
@@ -795,11 +816,16 @@
                 txtHtml += `<div class="text-center">¡Cuidado! Hay fallos en los cálculos de la interpolación lineal. Revisa la ecuación. ⚠️</div>`;
             }
             feedback.innerHTML = txtHtml;
+
+            // Ocultar botón verificar y mostrar "Nuevo Ejercicio"
+            document.getElementById('btn-verificar-cinetica').classList.add('hidden');
+            document.getElementById('btn-nuevo-cinetica').classList.remove('hidden');
         }
 
         function resetearCinetica() {
             document.getElementById('cinetica-ejercicio').classList.add('hidden');
             document.getElementById('cinetica-config').classList.remove('hidden');
+            document.getElementById('btn-volver').classList.add('hidden');
             if (chartInstance) {
                 chartInstance.destroy();
                 chartInstance = null;
