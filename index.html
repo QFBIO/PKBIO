@@ -207,12 +207,12 @@
             <!-- Zona de Configuración Cinética -->
             <div id="cinetica-config" class="w-full">
                 <p class="text-slate-500 font-medium text-[13px] sm:text-[14px] leading-relaxed text-center mb-6">
-                    Esta es una herramienta para generar valores de porcentaje de fármaco disuelto para formulaciones de
-                    forma aleatoria.<br class="hidden sm:block">
-                    Tu objetivo es seleccionar una de las cinéticas a continuación e interpolar variables.
+                    Esta herramienta genera perfiles de disolución aleatorios para diversas formulaciones.<br
+                        class="hidden sm:block">
+                    Tu función es seleccionar un modelo cinético específico e interpolar las variables correspondientes.
                 </p>
                 <p class="text-gray-400 mb-4 text-center text-xs font-bold uppercase tracking-wider">
-                    Configuración del Modelo:
+                    Selecciona para empezar:
                 </p>
                 <div class="grid grid-cols-2 gap-4 w-full">
                     <button onclick="generarCinetica('Orden 0')"
@@ -805,7 +805,7 @@
             feedback.classList.remove('hidden');
 
             feedback.className = "mt-3 animate-fade-in w-full space-y-3";
-            
+
             const iconA_char = okA ? "✓" : "✕";
             const iconA_class = okA ? "bg-green-200 text-green-700" : "bg-red-200 text-red-700";
             const cardA_class = okA ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50";
@@ -833,7 +833,7 @@
                     <div class="h-7 w-7 rounded-full flex items-center justify-center font-bold text-sm ${iconB_class} shadow-sm">${iconB_char}</div>
                 </div>
             </div>`;
-            
+
             feedback.innerHTML = txtHtml;
 
             // Ocultar botón verificar y mostrar "Nuevo Ejercicio"
