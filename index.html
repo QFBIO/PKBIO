@@ -100,6 +100,10 @@
                 class="px-3 sm:px-4 py-2 font-medium text-[13px] sm:text-sm transition-colors text-gray-400 border-b-2 border-transparent hover:text-brand-900 hover:bg-gray-50 rounded-t-lg">
                 Cinética de Disolución
             </button>
+            <button onclick="switchGlobalTab('calidad')" id="tab-btn-calidad"
+                class="px-3 sm:px-4 py-2 font-medium text-[13px] sm:text-sm transition-colors text-gray-400 border-b-2 border-transparent hover:text-brand-900 hover:bg-gray-50 rounded-t-lg">
+                Control de Calidad (USP)
+            </button>
         </div>
 
         <!-- ============================================== -->
@@ -327,6 +331,101 @@
             </div>
         </div>
 
+        <!-- ============================================== -->
+        <!-- PESTAÑA 3: CONTROL DE CALIDAD (USP)            -->
+        <!-- ============================================== -->
+        <div id="tab-content-calidad"
+            class="hidden flex-grow flex flex-col w-full px-6 pb-6 pt-6 space-y-5 overflow-y-auto">
+            
+            <!-- Zona de Configuración QC -->
+            <div id="qc-config" class="w-full">
+                <p class="text-slate-500 font-medium text-[13px] sm:text-[14px] leading-relaxed text-center mb-6">
+                    Esta herramienta genera tablas de control de calidad basadas en ensayos de disolución aleatorios.<br class="hidden sm:block">
+                    Tu función es seleccionar un tipo de dato e interpretar su desempeño.
+                </p>
+                <p class="text-gray-400 mb-4 text-center text-xs font-bold uppercase tracking-wider">
+                    Selecciona para empezar:
+                </p>
+                <div class="grid grid-cols-2 gap-4 w-full">
+                    <button onclick="iniciarQC('mg')"
+                        class="py-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-md hover:bg-brand-50 hover:text-brand-900 text-gray-700 font-semibold transition-all text-[13px]">
+                        Cantidad Disuelta (mg)
+                    </button>
+                    <button onclick="iniciarQC('%')"
+                        class="py-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-md hover:bg-brand-50 hover:text-brand-900 text-gray-700 font-semibold transition-all text-[13px]">
+                        % Disuelto
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interfaz Principal del Ejercicio QC -->
+            <div id="qc-ejercicio" class="hidden w-full flex flex-col space-y-5 animate-fade-in">
+                <!-- Encabezado QC -->
+                <div class="flex justify-between items-center bg-gray-50/80 p-3 rounded-lg border border-gray-200 shadow-sm">
+                    <div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Dosis Nominal</span>
+                        <span id="txt-qc-dosis" class="text-sm font-bold text-brand-900"></span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Criterio Q</span>
+                        <span id="txt-qc-q" class="text-sm font-bold text-accent-600"></span>
+                    </div>
+                </div>
+
+                <!-- Tabla de Referencia Criterios -->
+                <div class="w-full text-xs text-gray-600 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-100/50 text-gray-500 uppercase tracking-wider font-semibold border-b border-gray-200">
+                            <tr>
+                                <th class="p-2 w-1/6">Nivel</th>
+                                <th class="p-2 w-1/6 text-center">Unid.</th>
+                                <th class="p-2">Criterio de Aceptación</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr><td class="p-2 font-bold text-gray-700">S1</td><td class="p-2 text-center">6</td><td class="p-2">Cada unidad &ge; <span class="font-bold">Q + 5%</span>.</td></tr>
+                            <tr><td class="p-2 font-bold text-gray-700">S2</td><td class="p-2 text-center">6</td><td class="p-2">Promedio (12uds) &ge; <span class="font-bold">Q</span>, ninguna ud &lt; <span class="font-bold">Q &minus; 15%</span>.</td></tr>
+                            <tr><td class="p-2 font-bold text-gray-700">S3</td><td class="p-2 text-center">12</td><td class="p-2">Promedio (24uds) &ge; <span class="font-bold">Q</span>; máx 2 uds &lt; <span class="font-bold">Q &minus; 15%</span>, y ninguna ud &lt; <span class="font-bold">Q &minus; 25%</span>.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tablas S1, S2, S3 Dinámicas -->
+                <div id="qc-tables-container" class="space-y-4">
+                    <!-- Se inyectan las tablas aquí con JS -->
+                </div>
+
+                <!-- Evaluacion Dinámica -->
+                <div id="qc-eval-container" class="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-inner">
+                    <h3 id="qc-eval-title" class="text-sm font-bold text-gray-800 text-center mb-4 uppercase tracking-wide">
+                        Evaluación S1
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label id="lbl-qc-pass" class="block text-[13px] font-medium text-gray-700 mb-2">¿Pasa la prueba <span id="qc-current-stage" class="font-bold">S1</span>?</label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 border border-gray-200 rounded-lg shadow-sm hover:border-brand-500"><input type="radio" name="qc_pass" value="si" class="w-4 h-4 text-brand-600 focus:ring-brand-500 border-gray-300"> <span class="text-sm">Sí, pasa</span></label>
+                                <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 border border-gray-200 rounded-lg shadow-sm hover:border-brand-500"><input type="radio" name="qc_pass" value="no" class="w-4 h-4 text-brand-600 focus:ring-brand-500 border-gray-300"> <span class="text-sm">No, falla</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[13px] font-medium text-gray-700 mb-1">¿Cuáles unidades fallan el criterio? <span class="text-gray-400 font-normal block mb-1 text-xs">Ingresa sus números separados por comas (Ej: 1, 4). Deja vacío si ninguna falla.</span></label>
+                            <input type="text" id="input-qc-fallas" placeholder="Escribe los números..." class="w-full px-3 py-2 bg-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all text-sm font-mono shadow-sm">
+                        </div>
+                        
+                        <button id="btn-verificar-qc" onclick="verificarQC()" class="w-full mt-4 bg-gradient-to-r from-brand-900 to-accent-600 hover:from-brand-800 hover:to-accent-500 text-white font-medium py-4 rounded-xl transition-all shadow-md active:scale-[0.98]">
+                            Verificar mi respuesta
+                        </button>
+                        <div id="feedback-qc" class="hidden rounded-lg p-3 text-sm font-medium mt-2 animate-fade-in border w-full flex flex-col gap-2">
+                        </div>
+                        <button id="btn-nuevo-qc" onclick="resetearQC()" class="hidden w-full mt-4 bg-gray-100 hover:bg-accent-50 text-brand-900 font-semibold py-4 rounded-xl transition-all active:scale-[0.98]">
+                            Nuevo Ejercicio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- PIE DE PÁGINA GLOBAL -->
         <footer class="w-full mt-auto border-t border-gray-100 bg-gray-50/50 px-6 py-6 text-center text-slate-500 text-xs sm:text-[13px] leading-relaxed">
             <p class="mb-2 font-medium text-slate-600">
@@ -380,29 +479,43 @@
         function switchGlobalTab(tabName) {
             const btnPka = document.getElementById('tab-btn-pka');
             const btnCin = document.getElementById('tab-btn-cinetica');
+            const btnQc = document.getElementById('tab-btn-calidad');
             const contentPka = document.getElementById('tab-content-pka');
             const contentCin = document.getElementById('tab-content-cinetica');
-            // Boton de la app original (PKA)
+            const contentQc = document.getElementById('tab-content-calidad');
             const btnVolver = document.getElementById('btn-volver');
 
-            if (tabName === 'pka') {
-                btnPka.className = "px-3 sm:px-4 py-2 font-semibold text-[13px] sm:text-sm transition-colors text-brand-900 border-b-2 border-brand-900 hover:bg-gray-50 rounded-t-lg";
-                btnCin.className = "px-3 sm:px-4 py-2 font-medium text-[13px] sm:text-sm transition-colors text-gray-400 border-b-2 border-transparent hover:text-brand-900 hover:bg-gray-50 rounded-t-lg";
-                contentPka.classList.remove('hidden');
-                contentCin.classList.add('hidden');
+            const activeStyle = "px-3 sm:px-4 py-2 font-semibold text-[13px] sm:text-sm transition-colors text-brand-900 border-b-2 border-brand-900 hover:bg-gray-50 rounded-t-lg";
+            const inactiveStyle = "px-3 sm:px-4 py-2 font-medium text-[13px] sm:text-sm transition-colors text-gray-400 border-b-2 border-transparent hover:text-brand-900 hover:bg-gray-50 rounded-t-lg";
 
+            btnPka.className = inactiveStyle;
+            btnCin.className = inactiveStyle;
+            if(btnQc) btnQc.className = inactiveStyle;
+
+            contentPka.classList.add('hidden');
+            contentCin.classList.add('hidden');
+            if(contentQc) contentQc.classList.add('hidden');
+
+            if (tabName === 'pka') {
+                btnPka.className = activeStyle;
+                contentPka.classList.remove('hidden');
                 if (vistaActual && vistaActual !== 'view-selection') {
                     btnVolver.classList.remove('hidden');
                 } else {
                     btnVolver.classList.add('hidden');
                 }
-            } else {
-                btnCin.className = "px-3 sm:px-4 py-2 font-semibold text-[13px] sm:text-sm transition-colors text-brand-900 border-b-2 border-brand-900 hover:bg-gray-50 rounded-t-lg";
-                btnPka.className = "px-3 sm:px-4 py-2 font-medium text-[13px] sm:text-sm transition-colors text-gray-400 border-b-2 border-transparent hover:text-brand-900 hover:bg-gray-50 rounded-t-lg";
+            } else if (tabName === 'cinetica') {
+                btnCin.className = activeStyle;
                 contentCin.classList.remove('hidden');
-                contentPka.classList.add('hidden');
-
                 if (!document.getElementById('cinetica-config').classList.contains('hidden')) {
+                    btnVolver.classList.add('hidden');
+                } else {
+                    btnVolver.classList.remove('hidden');
+                }
+            } else {
+                if(btnQc) btnQc.className = activeStyle;
+                if(contentQc) contentQc.classList.remove('hidden');
+                if (document.getElementById('qc-config') && !document.getElementById('qc-config').classList.contains('hidden')) {
                     btnVolver.classList.add('hidden');
                 } else {
                     btnVolver.classList.remove('hidden');
@@ -530,8 +643,10 @@
                 if (vistaActual !== 'view-selection') {
                     switchView(vistaActual, 'view-selection');
                 }
-            } else {
+            } else if (!document.getElementById('tab-content-cinetica').classList.contains('hidden')) {
                 resetearCinetica();
+            } else {
+                if (typeof resetearQC === 'function') resetearQC();
             }
         }
         function reiniciarApp() {
@@ -865,6 +980,233 @@
                 chartInstance.destroy();
                 chartInstance = null;
             }
+        }
+
+        /*************************************************
+         *  MÓDULO 3: CONTROL DE CALIDAD USP
+         *************************************************/
+        const dosisQcOptions = [5, 10, 50, 100];
+        const qOptions = [75, 80, 85];
+        let stateQc = null;
+
+        class MotorCalidad {
+            generarEjercicio(tipoDato) {
+                const dosis = dosisQcOptions[Math.floor(Math.random() * dosisQcOptions.length)];
+                const Q = qOptions[Math.floor(Math.random() * qOptions.length)];
+                
+                const r = Math.random();
+                let escenario;
+                if (r < 0.1) escenario = 'PASS_S1';
+                else if (r < 0.8) escenario = 'PASS_S2';
+                else if (r < 0.9) escenario = 'PASS_S3';
+                else escenario = 'FAIL_S3';
+
+                let valoresPct = new Array(24).fill(0);
+
+                if (escenario === 'PASS_S1') {
+                    for(let i=0; i<6; i++) valoresPct[i] = this.rn(Q + 6, Math.min(Q+20, 99));
+                } 
+                else if (escenario === 'PASS_S2') {
+                    for(let i=0; i<6; i++) valoresPct[i] = this.rn(Q + 5, 99);
+                    const fallasS1 = Math.floor(Math.random() * 2) + 1;
+                    for(let i=0; i<fallasS1; i++) valoresPct[i] = this.rn(Q - 14, Q + 4);
+                    
+                    for(let i=6; i<12; i++) valoresPct[i] = this.rn(Q + 3, 99);
+                } 
+                else if (escenario === 'PASS_S3') {
+                    for(let i=0; i<6; i++) valoresPct[i] = this.rn(Q + 5, 99);
+                    for(let i=0; i<2; i++) valoresPct[i] = this.rn(Q - 14, Q + 4);
+                    
+                    for(let i=6; i<12; i++) valoresPct[i] = this.rn(Q - 4, Q + 8);
+                    valoresPct[6] = this.rn(Q - 24, Q - 16); 
+                    
+                    for(let i=12; i<24; i++) valoresPct[i] = this.rn(Q + 6, 99);
+                } 
+                else { // FAIL_S3
+                    for(let i=0; i<6; i++) valoresPct[i] = this.rn(Q - 12, Q + 10);
+                    for(let i=6; i<12; i++) valoresPct[i] = this.rn(Q - 20, Q + 5);
+                    for(let i=12; i<24; i++) valoresPct[i] = this.rn(Q - 10, Q + 10);
+                    valoresPct[15] = this.rn(Q - 35, Q - 26);
+                }
+
+                this.sf(valoresPct, 0, 6);
+                this.sf(valoresPct, 6, 12);
+                this.sf(valoresPct, 12, 24);
+
+                let datosS1 = valoresPct.slice(0, 6);
+                let datosS2 = valoresPct.slice(6, 12);
+                let datosS3 = valoresPct.slice(12, 24);
+
+                let f1 = [];
+                for(let i=0; i<6; i++) if(datosS1[i] < Q+5) f1.push(i+1);
+                let p1 = f1.length === 0;
+
+                let s12 = 0, m12 = 1000, f2 = [];
+                for(let i=0; i<12; i++) {
+                    let v = valoresPct[i];
+                    s12 += v;
+                    if (v < m12) m12 = v;
+                    if (v < Q-15) f2.push(i+1);
+                }
+                let a12 = s12/12;
+                let p2 = p1 || (a12 >= Q && m12 >= Q-15);
+
+                let s24 = 0, m24 = 1000, c15 = 0, f3 = [];
+                for(let i=0; i<24; i++) {
+                    let v = valoresPct[i];
+                    s24 += v;
+                    if (v < m24) m24 = v;
+                    if (v < Q-15) c15++;
+                    if (v < Q-25) f3.push(i+1);
+                    else if (v < Q-15 && c15 > 2) f3.push(i+1);
+                }
+                let a24 = s24/24;
+                let p3 = p2 || (a24 >= Q && c15 <= 2 && m24 >= Q-25);
+                
+                return {
+                    dosis, Q, tipoDato, a12, a24,
+                    datosVal: valoresPct,
+                    displayFormat: (val) => tipoDato === '%' ? val.toFixed(1) + '%' : (val * dosis / 100).toFixed(1) + ' mg',
+                    solucion: {
+                        1: { pasa: p1, fallas: f1 },
+                        2: { pasa: p2, fallas: f2 },
+                        3: { pasa: p3, fallas: f3 }
+                    }
+                };
+            }
+
+            rn(min, max) { return Math.round((min + Math.random()*(max-min))*10)/10; }
+            sf(arr, s, e) {
+                for(let i=e-1; i>s; i--){
+                    let j=s+Math.floor(Math.random()*(i-s+1));
+                    [arr[i], arr[j]]=[arr[j], arr[i]];
+                }
+            }
+        }
+
+        const motorQC = new MotorCalidad();
+
+        function iniciarQC(tipo) {
+            document.getElementById('qc-config').classList.add('hidden');
+            document.getElementById('qc-ejercicio').classList.remove('hidden');
+            document.getElementById('btn-volver').classList.remove('hidden');
+            
+            stateQc = motorQC.generarEjercicio(tipo);
+            stateQc.stage = 1;
+
+            document.getElementById('txt-qc-dosis').textContent = stateQc.dosis + ' mg';
+            document.getElementById('txt-qc-q').textContent = stateQc.Q + '%';
+
+            document.getElementById('qc-tables-container').innerHTML = '';
+            renderizarTablaQC(1);
+            prepararFooterQC(1);
+        }
+
+        function renderizarTablaQC(stage) {
+            let ns = stage === 1 ? 1 : (stage === 2 ? 7 : 13);
+            let ne = stage === 1 ? 6 : (stage === 2 ? 12 : 24);
+
+            let html = `<div id="qc-table-${stage}" class="w-full border border-gray-300 rounded-lg overflow-hidden shadow-sm animate-fade-in mb-4"><div class="bg-gray-100/80 p-1.5 border-b border-gray-300 text-center font-bold text-gray-600 text-[11px] uppercase tracking-wider">Unidades S${stage} (${ns}-${ne})</div><div class="grid grid-cols-6 border-b border-gray-200">`;
+            
+            for(let i=ns; i<=ne; i++) html += `<div class="py-1 text-center text-[10px] sm:text-[11px] font-bold text-gray-400 bg-gray-50 border-r border-gray-200 last:border-r-0">U${i}</div>`;
+            html += `</div><div class="grid grid-cols-6">`;
+            for(let i=ns; i<=ne; i++) {
+                let v = stateQc.datosVal[i-1];
+                html += `<div id="qc-val-${i}" class="py-3 text-center text-[13px] sm:text-sm font-bold text-brand-900 border-r border-gray-200 last:border-r-0 transition-colors">${stateQc.displayFormat(v)}</div>`;
+            }
+            html += `</div></div>`;
+            document.getElementById('qc-tables-container').innerHTML += html;
+            
+            if (stage == 2) {
+                let promedio = `<div class="text-right text-xs font-bold text-gray-500 mb-4 px-2">Promedio acumulado (1-12): <span class="text-brand-700 font-mono text-[13px]">${stateQc.displayFormat(stateQc.a12)}</span></div>`;
+                document.getElementById('qc-tables-container').innerHTML += promedio;
+            } else if (stage == 3) {
+                let promedio = `<div class="text-right text-xs font-bold text-gray-500 mb-4 px-2">Promedio acumulado (1-24): <span class="text-brand-700 font-mono text-[13px]">${stateQc.displayFormat(stateQc.a24)}</span></div>`;
+                document.getElementById('qc-tables-container').innerHTML += promedio;
+            }
+        }
+
+        function prepararFooterQC(stage) {
+            document.getElementById('qc-eval-title').textContent = "Evaluación S" + stage;
+            document.getElementById('qc-current-stage').textContent = "S" + stage;
+            
+            const radios = document.getElementsByName('qc_pass');
+            radios.forEach(r => r.checked = false);
+            document.getElementById('input-qc-fallas').value = '';
+            
+            document.getElementById('btn-verificar-qc').classList.remove('hidden');
+            document.getElementById('btn-nuevo-qc').classList.add('hidden');
+            document.getElementById('feedback-qc').classList.add('hidden');
+            document.getElementById('feedback-qc').innerHTML = '';
+        }
+
+        function verificarQC() {
+            let st = stateQc.stage;
+            let sol = stateQc.solucion[st];
+            
+            let passedSelected = null;
+            document.getElementsByName('qc_pass').forEach(r => { if(r.checked) passedSelected = (r.value === 'si'); });
+            
+            if (passedSelected === null) { alert("Responde a la primera pregunta (Sí o No) antes de verificar."); return; }
+
+            let fIng = document.getElementById('input-qc-fallas').value.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
+            let sameArr = (a1, a2) => {
+                if(a1.length !== a2.length) return false;
+                let s1 = [...a1].sort(), s2 = [...a2].sort();
+                return s1.every((v, index) => v === s2[index]);
+            };
+            
+            let cPasa = (passedSelected === sol.pasa);
+            let cFallas = sameArr(fIng, sol.fallas);
+            
+            // Requerimos que ambas respuestas (Pasa V/F, y Cuáles fallan si fallan) estén bien
+            let ok = cPasa && cFallas;
+            
+            const feedback = document.getElementById('feedback-qc');
+            feedback.classList.remove('hidden');
+            
+            let msg = '';
+            if (ok) {
+                msg = `<div class="flex items-center gap-2 text-green-700 font-bold bg-green-50 border border-green-200 p-3 rounded-lg w-full">✅ Análisis correcto.</div>`;
+            } else {
+                msg = `<div class="flex flex-col gap-1 text-amber-800 font-bold bg-amber-50 border border-amber-200 p-3 rounded-lg w-full">❌ Análisis incorrecto u omisiones.<span class="text-xs font-semibold mt-1 opacity-90">Resolución Real: Etapa S${st} ${sol.pasa?'APROBADA':'RECHAZADA'}. Unidades causantes: ${sol.fallas.length>0 ? sol.fallas.join(', ') : 'Ninguna'}.</span></div>`;
+            }
+            
+            // Mark errors visually
+            sol.fallas.forEach(f => {
+                let d = document.getElementById(`qc-val-${f}`);
+                if (d) { d.classList.remove('text-brand-900', 'bg-white'); d.classList.add('text-rose-700', 'bg-rose-50'); }
+            });
+
+            document.getElementById('btn-verificar-qc').classList.add('hidden');
+
+            if (sol.pasa) {
+                msg += `<div class="text-center font-bold text-gray-800 bg-gray-100 p-3 rounded-lg border border-gray-300 w-full mt-2">🏁 El lote CUMPLE con todas las especificaciones USP en la etapa S${st}. Lote Aceptado.</div>`;
+                document.getElementById('btn-nuevo-qc').classList.remove('hidden');
+            } else {
+                if (st < 3 && ok) {
+                    msg += `<div class="text-center font-bold text-slate-500 text-xs mt-3">Avanzando automáticamente a ensayo S${st+1}...</div>`;
+                    setTimeout(() => {
+                        stateQc.stage++;
+                        renderizarTablaQC(stateQc.stage);
+                        prepararFooterQC(stateQc.stage);
+                    }, 2500);
+                } else if (st < 3 && !ok) {
+                    msg += `<div class="text-center font-semibold text-gray-500 text-xs mt-3">Como te equivocaste, el lote ha sido devuelto para re-análisis en laboratorios. Genera un nuevo lote.</div>`;
+                    document.getElementById('btn-nuevo-qc').classList.remove('hidden');
+                } else {
+                    msg += `<div class="text-center font-bold text-rose-800 bg-rose-50 p-3 rounded-lg border border-rose-200 w-full mt-2">🔴 El lote NO CUMPLE ni siquiera en S3. Lote Rechazado Definitivamente.</div>`;
+                    document.getElementById('btn-nuevo-qc').classList.remove('hidden');
+                }
+            }
+            feedback.innerHTML = msg;
+        }
+
+        function resetearQC() {
+            document.getElementById('qc-ejercicio').classList.add('hidden');
+            document.getElementById('qc-config').classList.remove('hidden');
+            document.getElementById('btn-volver').classList.add('hidden');
+            document.getElementById('qc-tables-container').innerHTML = '';
         }
     </script>
 </body>
